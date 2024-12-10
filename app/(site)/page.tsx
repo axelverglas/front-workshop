@@ -70,7 +70,7 @@ export default function Home() {
               >
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    {room.name}
+                    {room.name.replace("_", ".")}
                     <Circle
                       className={cn(
                         "h-3 w-3",

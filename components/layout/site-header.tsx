@@ -14,10 +14,6 @@ import { useState, useEffect } from "react";
 import { useRooms } from "@/hooks/useRoom";
 import { cn } from "@/lib/utils";
 import { EnvironmentData } from "@/types/environnementData";
-import {
-  requestNotificationPermission,
-  sendNotification,
-} from "@/lib/notification";
 import { useQueries } from "@tanstack/react-query";
 import { fetchEnvironmentData } from "@/services/environnement-data";
 
@@ -40,7 +36,6 @@ interface Alert {
 export function SiteHeader() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const { data: rooms } = useRooms();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const environmentQueries = useQueries({
     queries: (rooms ?? []).map((room) => ({
@@ -50,10 +45,6 @@ export function SiteHeader() {
       refetchIntervalInBackground: true,
     })),
   });
-
-  useEffect(() => {
-    requestNotificationPermission().then(setNotificationsEnabled);
-  }, []);
 
   useEffect(() => {
     if (!rooms || environmentQueries.some((query) => query.isLoading)) return;
@@ -79,7 +70,7 @@ export function SiteHeader() {
       const currentAlerts = [
         {
           roomId: room.id,
-          roomName: room.name,
+          roomName: `Salle ${room.id.replace("_", ".")}`,
           type: "co2" as const,
           value: lastEntry.co2,
           threshold: ALERT_THRESHOLDS.co2,
@@ -88,7 +79,7 @@ export function SiteHeader() {
         },
         {
           roomId: room.id,
-          roomName: room.name,
+          roomName: `Salle ${room.id.replace("_", ".")}`,
           type: "temperature" as const,
           value: lastEntry.temperature,
           threshold: ALERT_THRESHOLDS.temperature,
@@ -100,7 +91,7 @@ export function SiteHeader() {
         },
         {
           roomId: room.id,
-          roomName: room.name,
+          roomName: `Salle ${room.id.replace("_", ".")}`,
           type: "humidity" as const,
           value: lastEntry.humidity,
           threshold: ALERT_THRESHOLDS.humidity,
@@ -113,36 +104,16 @@ export function SiteHeader() {
       currentAlerts.forEach((alert) => {
         if (alert.status === "warning") {
           newAlerts.push(alert);
-
-          if (notificationsEnabled) {
-            sendNotification(`Alerte ${alert.roomName}`, {
-              body: `${
-                alert.type === "co2"
-                  ? "CO2"
-                  : alert.type === "temperature"
-                  ? "Température"
-                  : "Humidité"
-              }: ${alert.value.toFixed(1)} ${
-                alert.type === "co2"
-                  ? "ppm"
-                  : alert.type === "temperature"
-                  ? "°C"
-                  : "%"
-              }`,
-              tag: `${alert.roomId}-${alert.type}`,
-            });
-          }
         }
       });
     });
 
-    // Mettre à jour les alertes uniquement si elles ont changé
     setAlerts((prevAlerts) => {
       const alertsChanged =
         JSON.stringify(prevAlerts) !== JSON.stringify(newAlerts);
       return alertsChanged ? newAlerts : prevAlerts;
     });
-  }, [rooms, environmentQueries, notificationsEnabled]);
+  }, [rooms, environmentQueries]);
 
   const warningCount = alerts.filter((a) => a.status === "warning").length;
 

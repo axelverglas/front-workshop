@@ -122,7 +122,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
       <div className="container">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
           <h1 className="text-3xl font-bold">
-            Tableau de bord de la salle {params.id}
+            Tableau de bord de la salle {params.id.replace("_", ".")}
           </h1>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex flex-wrap gap-2">
