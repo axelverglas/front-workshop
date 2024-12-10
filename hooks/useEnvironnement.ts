@@ -6,5 +6,7 @@ export const useEnvironmentData = (roomId: string) => {
     queryKey: ["environment", roomId],
     queryFn: () => fetchEnvironmentData(roomId),
     refetchInterval: 60000,
+    refetchIntervalInBackground: true,
+    staleTime: 30000,
   });
 };

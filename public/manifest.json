@@ -1,7 +1,7 @@
 {
-  "name": "Gestionnaire de Salles",
-  "short_name": "Salles",
-  "description": "Application de gestion des salles",
+  "name": "Qualité de l'air",
+  "short_name": "Qualité de l'air",
+  "description": "Qualité de l'air de l'école Digital Campus",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

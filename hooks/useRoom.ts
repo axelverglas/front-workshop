@@ -6,5 +6,7 @@ export const useRooms = () => {
     queryKey: ["rooms"],
     queryFn: () => fetchRooms(),
     refetchInterval: 60000,
+    refetchIntervalInBackground: true,
+    staleTime: 30000,
   });
 };
