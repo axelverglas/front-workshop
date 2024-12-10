@@ -15,6 +15,10 @@ import { useRooms } from "@/hooks/useRoom";
 import { cn } from "@/lib/utils";
 import { EnvironmentData } from "@/types/environnementData";
 import { fetchEnvironmentData } from "@/services/environnement-data";
+import {
+  requestNotificationPermission,
+  sendNotification,
+} from "@/lib/notification";
 
 const ALERT_THRESHOLDS = {
   co2: 1000,
@@ -29,12 +33,17 @@ interface Alert {
   value: number;
   threshold: number;
   timestamp: Date;
-  status: "warning" | "success";
+  status: string | null;
 }
 
 export function SiteHeader() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const { data: rooms } = useRooms();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  useEffect(() => {
+    requestNotificationPermission().then(setNotificationsEnabled);
+  }, []);
 
   useEffect(() => {
     if (!rooms) return;
@@ -57,10 +66,7 @@ export function SiteHeader() {
             value: lastEntry.co2,
             threshold: ALERT_THRESHOLDS.co2,
             timestamp: new Date(lastEntry.date),
-            status:
-              lastEntry.co2 > ALERT_THRESHOLDS.co2
-                ? ("warning" as const)
-                : ("success" as const),
+            status: lastEntry.co2 > ALERT_THRESHOLDS.co2 ? "warning" : null,
           },
           {
             roomId: room.id,
@@ -71,8 +77,8 @@ export function SiteHeader() {
             timestamp: new Date(lastEntry.date),
             status:
               lastEntry.temperature > ALERT_THRESHOLDS.temperature
-                ? ("warning" as const)
-                : ("success" as const),
+                ? "warning"
+                : null,
           },
           {
             roomId: room.id,
@@ -82,21 +88,43 @@ export function SiteHeader() {
             threshold: ALERT_THRESHOLDS.humidity,
             timestamp: new Date(lastEntry.date),
             status:
-              lastEntry.humidity > ALERT_THRESHOLDS.humidity
-                ? ("warning" as const)
-                : ("success" as const),
+              lastEntry.humidity > ALERT_THRESHOLDS.humidity ? "warning" : null,
           },
         ];
 
         currentAlerts.forEach((alert) => {
-          const existingAlert = alerts.find(
-            (a) => a.roomId === alert.roomId && a.type === alert.type
-          );
-          if (!existingAlert || existingAlert.status !== alert.status) {
-            newAlerts.push(alert);
+          if (alert.status === "warning") {
+            const existingAlert = alerts.find(
+              (a) => a.roomId === alert.roomId && a.type === alert.type
+            );
+            if (!existingAlert || existingAlert.status !== alert.status) {
+              newAlerts.push(alert);
+            }
           }
         });
       }
+
+      // Envoyer une notification pour chaque nouvelle alerte
+      newAlerts.forEach((alert) => {
+        if (notificationsEnabled) {
+          sendNotification(`Alerte ${alert.roomName}`, {
+            body: `${
+              alert.type === "co2"
+                ? "CO2"
+                : alert.type === "temperature"
+                ? "Température"
+                : "Humidité"
+            }: ${alert.value.toFixed(1)} ${
+              alert.type === "co2"
+                ? "ppm"
+                : alert.type === "temperature"
+                ? "°C"
+                : "%"
+            }`,
+            tag: `${alert.roomId}-${alert.type}`,
+          });
+        }
+      });
 
       setAlerts((prev) => {
         const filteredAlerts = prev.filter((oldAlert) => {
@@ -110,7 +138,7 @@ export function SiteHeader() {
     };
 
     checkAlerts();
-  }, [rooms, alerts]);
+  }, [rooms, alerts, notificationsEnabled]);
 
   const warningCount = alerts.filter((a) => a.status === "warning").length;
 

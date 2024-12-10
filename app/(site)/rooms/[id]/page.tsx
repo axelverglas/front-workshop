@@ -120,12 +120,12 @@ export default function RoomPage({ params }: { params: { id: string } }) {
   return (
     <section className="py-12">
       <div className="container">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
           <h1 className="text-3xl font-bold">
             Tableau de bord de la salle {params.id}
           </h1>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex flex-wrap gap-2">
               <Button onClick={exportToCSV} variant="outline" size="sm">
                 <FileDown className="mr-2 h-4 w-4" />
                 CSV
@@ -138,19 +138,19 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                 <FileDown className="mr-2 h-4 w-4" />
                 XML
               </Button>
-              <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger className="w-[200px] h-9">
-                  <SelectValue placeholder="Période" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeRanges.map((range) => (
-                    <SelectItem key={range.value} value={range.value}>
-                      {range.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[200px] h-9">
+                <SelectValue placeholder="Période" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeRanges.map((range) => (
+                  <SelectItem key={range.value} value={range.value}>
+                    {range.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         {isLoading ? (
