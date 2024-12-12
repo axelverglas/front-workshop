@@ -3,7 +3,7 @@ import app from "@/lib/firebase";
 const database = getDatabase(app);
 
 export const fetchEnvironmentData = async (roomId: string) => {
-  const roomRef = ref(database, `environment/${roomId}`);
+  const roomRef = ref(database, `dcCampus/${roomId}`);
   const snapshot = await get(roomRef);
   return snapshot.val();
 };

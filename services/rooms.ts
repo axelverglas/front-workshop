@@ -4,7 +4,7 @@ import { Room } from "@/types/rooms";
 const database = getDatabase(app);
 
 export const fetchRooms = async (): Promise<Room[]> => {
-  const envRef = ref(database, "environment");
+  const envRef = ref(database, "dcCampus");
   const snapshot = await get(envRef);
 
   if (!snapshot.exists()) return [];

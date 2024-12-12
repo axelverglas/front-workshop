@@ -2,7 +2,7 @@
 
 import { useRooms } from "@/hooks/useRoom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Circle } from "lucide-react";
+import { Circle, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import {
@@ -13,6 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { EnvironmentData } from "@/types/environnementData";
+import { useQueries } from "@tanstack/react-query";
+import { fetchEnvironmentData } from "@/services/environnement-data";
+import { getValueColor, THRESHOLDS } from "@/lib/constants";
 
 const floorOptions = [
   { value: "all", label: "Tous les étages 🏢" },
@@ -35,6 +39,15 @@ export default function Home() {
   const filteredRooms = rooms?.filter((room) => {
     if (selectedFloor === "all") return true;
     return room.floor === selectedFloor;
+  });
+
+  const environmentQueries = useQueries({
+    queries: (rooms ?? []).map((room) => ({
+      queryKey: ["environment", room.id],
+      queryFn: () => fetchEnvironmentData(room.id),
+      refetchInterval: 60000,
+      refetchIntervalInBackground: true,
+    })),
   });
 
   return (
@@ -62,41 +75,108 @@ export default function Home() {
           <div>Aucune salle trouvée pour cet étage</div>
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
-            {filteredRooms.map((room) => (
-              <Card
-                key={room.id}
-                className="cursor-pointer hover:bg-accent transition-colors"
-                onClick={() => router.push(`/rooms/${room.id}`)}
-              >
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    {room.name.replace("_", ".")}
-                    <Circle
-                      className={cn(
-                        "h-3 w-3",
-                        room.isOnline
-                          ? "text-green-500 fill-green-500"
-                          : "text-red-500 fill-red-500"
+            {filteredRooms.map((room, index) => {
+              const environmentData = environmentQueries[index]?.data;
+              const lastValues = environmentData
+                ? (Object.values(environmentData).pop() as EnvironmentData)
+                : null;
+
+              return (
+                <Card
+                  key={room.id}
+                  className="cursor-pointer hover:bg-accent transition-colors"
+                  onClick={() => router.push(`/rooms/${room.id}`)}
+                >
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      {room.name.replace("_", ".")}
+                      <Circle
+                        className={cn(
+                          "h-3 w-3",
+                          room.isOnline
+                            ? "text-green-500 fill-green-500"
+                            : "text-red-500 fill-red-500"
+                        )}
+                      />
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col gap-4">
+                      <p className="text-sm text-muted-foreground">
+                        {room.isOnline ? "En ligne" : "Hors ligne"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {room.floor === "rdc"
+                          ? "Rez-de-chaussée"
+                          : room.floor === "sous-sol"
+                          ? "Sous-sol"
+                          : `${room.floor}ème étage`}
+                      </p>
+                      {lastValues && (
+                        <div className="pt-2 border-t">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground flex items-center gap-2">
+                              <span
+                                className={getValueColor("co2", lastValues.co2)}
+                              >
+                                <Circle
+                                  className={cn(
+                                    "h-2 w-2 inline-block mr-1",
+                                    lastValues.co2 >= THRESHOLDS.co2.warning
+                                      ? "fill-red-500"
+                                      : "fill-green-500"
+                                  )}
+                                />
+                                {lastValues.co2.toFixed(0)}ppm
+                              </span>
+                              <span
+                                className={getValueColor(
+                                  "temperature",
+                                  lastValues.temperature
+                                )}
+                              >
+                                <Circle
+                                  className={cn(
+                                    "h-2 w-2 inline-block mr-1",
+                                    lastValues.temperature >
+                                      THRESHOLDS.temperature.max ||
+                                      lastValues.temperature <
+                                        THRESHOLDS.temperature.min
+                                      ? "fill-red-500"
+                                      : "fill-green-500"
+                                  )}
+                                />
+                                {lastValues.temperature.toFixed(1)}°C
+                              </span>
+                              <span
+                                className={getValueColor(
+                                  "humidity",
+                                  lastValues.humidity
+                                )}
+                              >
+                                <Circle
+                                  className={cn(
+                                    "h-2 w-2 inline-block mr-1",
+                                    lastValues.humidity >
+                                      THRESHOLDS.humidity.max ||
+                                      lastValues.humidity <
+                                        THRESHOLDS.humidity.min
+                                      ? "fill-red-500"
+                                      : "fill-green-500"
+                                  )}
+                                />
+                                {lastValues.humidity.toFixed(0)}%
+                              </span>
+                            </span>
+                            <TrendingUp className="h-3 w-3" />
+                          </div>
+                        </div>
                       )}
-                    />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground">
-                      {room.isOnline ? "En ligne" : "Hors ligne"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {room.floor === "rdc"
-                        ? "Rez-de-chaussée"
-                        : room.floor === "sous-sol"
-                        ? "Sous-sol"
-                        : `${room.floor}ème étage`}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

@@ -37,7 +37,7 @@ import {
 
 interface EnvironmentData {
   co2: number;
-  date: string;
+  date: string | number;
   humidity: number;
   temperature: number;
 }
@@ -54,8 +54,11 @@ const formatData = (data: EnvironmentData[]) => {
   }));
 };
 
-const formatXAxis = (timestamp: string, timeRange: string) => {
-  const date = new Date(timestamp);
+const formatXAxis = (timestamp: string | number, timeRange: string) => {
+  const date =
+    typeof timestamp === "string"
+      ? new Date(timestamp)
+      : new Date(Number(timestamp));
 
   switch (timeRange) {
     case "1h":

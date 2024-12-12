@@ -16,12 +16,7 @@ import { cn } from "@/lib/utils";
 import { EnvironmentData } from "@/types/environnementData";
 import { useQueries } from "@tanstack/react-query";
 import { fetchEnvironmentData } from "@/services/environnement-data";
-
-const ALERT_THRESHOLDS = {
-  co2: 1000,
-  temperature: 25,
-  humidity: 70,
-};
+import { THRESHOLDS } from "@/lib/constants";
 
 interface Alert {
   roomId: string;
@@ -73,19 +68,20 @@ export function SiteHeader() {
           roomName: `Salle ${room.id.replace("_", ".")}`,
           type: "co2" as const,
           value: lastEntry.co2,
-          threshold: ALERT_THRESHOLDS.co2,
+          threshold: THRESHOLDS.co2.warning,
           timestamp: new Date(lastEntry.date),
-          status: lastEntry.co2 > ALERT_THRESHOLDS.co2 ? "warning" : null,
+          status: lastEntry.co2 >= THRESHOLDS.co2.warning ? "warning" : null,
         },
         {
           roomId: room.id,
           roomName: `Salle ${room.id.replace("_", ".")}`,
           type: "temperature" as const,
           value: lastEntry.temperature,
-          threshold: ALERT_THRESHOLDS.temperature,
+          threshold: THRESHOLDS.temperature.max,
           timestamp: new Date(lastEntry.date),
           status:
-            lastEntry.temperature > ALERT_THRESHOLDS.temperature
+            lastEntry.temperature > THRESHOLDS.temperature.max ||
+            lastEntry.temperature < THRESHOLDS.temperature.min
               ? "warning"
               : null,
         },
@@ -94,10 +90,13 @@ export function SiteHeader() {
           roomName: `Salle ${room.id.replace("_", ".")}`,
           type: "humidity" as const,
           value: lastEntry.humidity,
-          threshold: ALERT_THRESHOLDS.humidity,
+          threshold: THRESHOLDS.humidity.max,
           timestamp: new Date(lastEntry.date),
           status:
-            lastEntry.humidity > ALERT_THRESHOLDS.humidity ? "warning" : null,
+            lastEntry.humidity > THRESHOLDS.humidity.max ||
+            lastEntry.humidity < THRESHOLDS.humidity.min
+              ? "warning"
+              : null,
         },
       ];
 

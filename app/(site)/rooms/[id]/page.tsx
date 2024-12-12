@@ -16,6 +16,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { StatsCards } from "./components/stats-cards";
 
 const timeRanges = [
   { value: "1h", label: "Dernière heure" },
@@ -156,11 +157,14 @@ export default function RoomPage({ params }: { params: { id: string } }) {
         {isLoading ? (
           <div>Chargement des données...</div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            <CO2Chart data={getDisplayData()} timeRange={timeRange} />
-            <TemperatureChart data={getDisplayData()} timeRange={timeRange} />
-            <HumidityChart data={getDisplayData()} timeRange={timeRange} />
-          </div>
+          <>
+            <StatsCards data={getDisplayData()} />
+            <div className="grid gap-4 md:grid-cols-2">
+              <CO2Chart data={getDisplayData()} timeRange={timeRange} />
+              <TemperatureChart data={getDisplayData()} timeRange={timeRange} />
+              <HumidityChart data={getDisplayData()} timeRange={timeRange} />
+            </div>
+          </>
         )}
       </div>
     </section>
