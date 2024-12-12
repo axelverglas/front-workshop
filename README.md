@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Surveillance Environnementale - Digital Campus
 
-## Getting Started
+## Description
 
-First, run the development server:
+Application web de surveillance en temps réel des conditions environnementales des salles de Digital Campus. L'application permet de suivre la qualité de l'air (CO2), la température et l'humidité dans chaque salle.
+
+## Fonctionnalités Principales
+
+### Dashboard Principal
+
+- Vue d'ensemble de toutes les salles par étage
+- Statut en temps réel des capteurs
+- Indicateurs visuels pour les valeurs hors normes
+- Filtrage par étage avec émojis
+
+### Vue Détaillée par Salle
+
+- Graphiques interactifs sur 24h
+- Trois types de visualisation : aire, ligne, barres
+- Moyennes des mesures
+- Export des données (CSV, PDF, XML)
+
+### Système d'Alertes
+
+- Notifications en temps réel
+- Seuils configurés :
+  - CO2 : > 1000 ppm
+  - Température : 19-25°C
+  - Humidité : 30-70%
+
+## Installation
 
 ```bash
+# Installation des dépendances
+npm install
+
+# Démarrage en développement
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Construction pour production
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Utilisées
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js 14
+- React Query
+- Recharts
+- TailwindCSS
+- Firebase
+- PWA Ready
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Configuration Requise
 
-## Learn More
+- Node.js 18+
+- npm ou yarn
+- Connexion Internet pour les données en temps réel
 
-To learn more about Next.js, take a look at the following resources:
+## PWA
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+L'application est installable sur mobile et desktop avec des fonctionnalités hors ligne.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Maintenance
 
-## Deploy on Vercel
+- Seuils d'alerte configurables dans `/lib/constants.ts`
+- Rafraîchissement des données toutes les 60 secondes
+- Logs des alertes en temps réel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contribution
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/amelioration`)
+3. Commit (`git commit -m 'Ajout fonctionnalité'`)
+4. Push (`git push origin feature/amelioration`)
+5. Pull Request

@@ -27,7 +27,7 @@ const timeRanges = [
 ];
 
 export default function RoomPage({ params }: { params: { id: string } }) {
-  const [timeRange, setTimeRange] = useState("1h");
+  const [timeRange, setTimeRange] = useState("24h");
   const { data: environmentData, isLoading } = useEnvironmentData(params.id);
 
   const getDisplayData = () => {
