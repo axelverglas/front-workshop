@@ -28,7 +28,8 @@ export const getValueColor = (
         ? "text-red-500"
         : "text-green-500";
     case "humidity":
-      return value > THRESHOLDS.humidity.max || value < THRESHOLDS.humidity.min
+      return value <= THRESHOLDS.humidity.min ||
+        value >= THRESHOLDS.humidity.max
         ? "text-red-500"
         : "text-green-500";
   }
